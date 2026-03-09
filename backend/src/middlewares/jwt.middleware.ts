@@ -1,5 +1,6 @@
 import { Response, Request, NextFunction } from "express"
 import jwt from "jsonwebtoken"
+import { fetchUserInfo } from "services/user.services"
 import { AuthRequest } from "types/request.type"
 
 const protectedRoute = async (
@@ -24,8 +25,13 @@ const protectedRoute = async (
             process.env.ACCESS_TOKEN_SECRET as string
         ) as { userId: string }
 
-        req.userId = dataDecoded.userId
-
+        const user = await fetchUserInfo(dataDecoded.userId)
+        if (!user) {
+            return res.status(403).json({
+                message: "User isn't Existed"
+            })
+        }
+        req.user = user
         next()
 
     } catch (error) {
