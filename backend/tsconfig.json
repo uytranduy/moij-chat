@@ -8,6 +8,10 @@
     "strict": true,
     "skipLibCheck": true,
     "baseUrl": "./src",
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/types"
+    ],
     "paths": {
       "controllers/*": [
         "controllers/*"
@@ -18,8 +22,8 @@
       "services/*": [
         "services/*"
       ],
-      "middleware/*": [
-        "middleware/*"
+      "middlewares/*": [
+        "middlewares/*"
       ],
       "models/*": [
         "models/*"
@@ -27,9 +31,12 @@
       "libs/*": [
         "libs/*"
       ]
-    },
+    }
   },
   "include": [
     "src"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }

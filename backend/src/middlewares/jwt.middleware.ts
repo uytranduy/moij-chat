@@ -1,41 +1,42 @@
-import { Response, Request, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-import { fetchUserInfo } from "services/user.services";
+import { Response, Request, NextFunction } from "express"
+import jwt from "jsonwebtoken"
+import { AuthRequest } from "types/request.type"
 
-const protectedRoute = async (req: Request, res: Response, next: NextFunction) => {
+const protectedRoute = async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+) => {
     try {
-        const token = req.headers["authorization"]?.split(" ")[1] as string
-        //kiem tra token
-        if (!token) {
-            res.status(401).json({
-                message: "Not found token"
-            })
-        }
-        const dataDecoded: any = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET as string)
-        if (!dataDecoded) {
-            res.status(401).json({
-                message: "token id invalid"
+
+        const authHeader = req.headers.authorization
+
+        if (!authHeader) {
+            return res.status(401).json({
+                message: "Token not found"
             })
         }
 
+        const token = authHeader.split(" ")[1]
 
+        const dataDecoded = jwt.verify(
+            token,
+            process.env.ACCESS_TOKEN_SECRET as string
+        ) as { userId: string }
 
-        //kiem tra user
-        const user = dataDecoded.userId
-        if (!user) {
-            res.status(404).json({
-                message: "User isn't existed"
-            })
-        }
+        req.userId = dataDecoded.userId
 
-        //dan 
-        req.user = user
         next()
+
     } catch (error) {
 
-        console.error("Lỗi khi xác minh JWT trong authMiddleware", error)
-        return res.status(500).json({ message: "Lỗi hệ thống" })
+        console.error("JWT verify error:", error)
+
+        return res.status(401).json({
+            message: "Token invalid or expired"
+        })
 
     }
 }
+
 export default protectedRoute

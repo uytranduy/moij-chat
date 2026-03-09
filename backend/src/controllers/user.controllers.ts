@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
 import { fetchUserInfo } from "services/user.services";
+import { AuthRequest } from "types/request.type";
 
-const getUserAPI = async (req: Request, res: Response) => {
+const getUserAPI = async (req: AuthRequest, res: Response) => {
     try {
-        const { userId } = req.user
-        const user = await fetchUserInfo(userId)
+        const userId = req.userId
+        const user = await fetchUserInfo(userId!)
         res.status(200).json({
             data: user
         })
