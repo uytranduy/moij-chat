@@ -11,6 +11,6 @@ const authRoute = (app: Express) => {
     route.post("/signin", validate(loginSchema), signInAPI)
     route.post("/signout", signOutAPI)
     route.post("/refresh", refreshTokenAPI)
-    app.use("/api", route)
+    app.use("/auth", route)
 }
 export default authRoute

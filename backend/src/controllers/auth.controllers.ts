@@ -30,7 +30,7 @@ const signInAPI = async (req: Request, res: Response) => {
             secure: true
         })
         return res.status(200)
-            .json({ message: `User đã logged in!`, token: token.ACCESS_TOKEN });
+            .json({ token: token.ACCESS_TOKEN });
     } catch (error: any) {
 
         res.status(401).json({
@@ -52,7 +52,7 @@ const signOutAPI = async (req: Request, res: Response) => {
     } catch (error: any) {
         console.log("lỗi gọi signout", error)
         res.status(500).json({
-            message: "System is malfunction"
+            message: "Server error!"
         })
     }
 
@@ -68,7 +68,7 @@ const refreshTokenAPI = async (req: Request, res: Response) => {
         }
         const newToken = await refreshToken(refresh_Token)
         return res.status(200).json({
-            message: `new refresh token: ${newToken}`
+            data: newToken
         })
     } catch (error: any) {
         if (error.errors) {

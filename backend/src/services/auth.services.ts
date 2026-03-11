@@ -17,8 +17,8 @@ const createUserAccount = async (
     const [isUsernameExisted, isEmailExisted] = await Promise.all([User.findOne({ username }), User.findOne({ email })])
 
     const errors: Record<string, string> = {}
-    if (isUsernameExisted) errors.username = "Username already exists"
-    if (isEmailExisted) errors.email = "Email already exists"
+    if (isUsernameExisted) errors.username = "Tên đăng nhập đã tồn tại!"
+    if (isEmailExisted) errors.email = "Email đã tồn tại!"
     if (password !== confirmPassword) errors.password = "Password and confirm password don't match"
     if (Object.keys(errors).length > 0) {
         throw {
@@ -40,11 +40,11 @@ const loginAccount = async (
 ) => {
     const user = await User.findOne({ username })
     if (!user) {
-        throw new Error("username or password invalid")
+        throw new Error("Tên đăng nhập hoặc mật khẩu không chính xác!")
     }
     const match = await bcrypt.compare(password, user.hashPassword)
     console.log(match)
-    if (!match) throw new Error("username or password invalid")
+    if (!match) throw new Error("Tên đăng nhập hoặc mật khẩu không chính xác!")
 
 
     const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET as string;
