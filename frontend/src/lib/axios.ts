@@ -1,7 +1,13 @@
 import { authSerVices } from "@/services/auth.services";
 import useAuthStore from "@/stores/useAuthStore";
-import axios from "axios"
+import axios, { AxiosError } from "axios"
+import type { InternalAxiosRequestConfig } from "axios";
 
+
+
+interface RetryAxiosRequestConfig extends InternalAxiosRequestConfig {
+    _retryCount?: number
+}
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
     timeout: 10000,
@@ -24,15 +30,19 @@ api.interceptors.request.use(
     }
 );
 
-api.interceptors.response.use((res) => res, async (error) => {
-    const originalRequest = error.config
+api.interceptors.response.use((res) => res, async (error: AxiosError) => {
+    const originalRequest = error.config as RetryAxiosRequestConfig
+
+    if (!originalRequest || !originalRequest.url) {
+        return Promise.reject(error)
+    }
     if (originalRequest.url.includes("/auth/signin") ||
         originalRequest.url.includes("/auth/signup") ||
         originalRequest.url.includes("/auth/refresh")) {
         return Promise.reject(error)
     }
     originalRequest._retryCount = originalRequest._retryCount || 0
-    if (error.response?.status === 403 && originalRequest._retryCount < 4) {
+    if (error.response?.status === 401 && originalRequest._retryCount < 4) {
         originalRequest._retryCount += 1
         try {
             const res = await authSerVices.refresh()
